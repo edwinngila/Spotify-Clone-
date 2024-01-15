@@ -2,6 +2,7 @@ package com.example.classwork.Controlers
 
 
 import android.app.usage.UsageEvents
+import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -13,6 +14,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -50,7 +52,7 @@ class AuthViewModel @Inject constructor(
                     if (task.isSuccessful) {
                         signedIn.value=true
                         createOrUpdateProfile(username= userName)
-                        navController.navigate("Profile")
+                        navController.navigate("Home")
                         popupNotification.value=Event("You have successfully registered user")
                     } else {
                         popupNotification.value=Event("Email already exists")
@@ -146,5 +148,35 @@ class AuthViewModel @Inject constructor(
         val errorMsg = exception?.localizedMessage ?: ""
         val message = if (customMessage.isEmpty()) errorMsg else "$customMessage: $errorMsg"
         popupNotification.value = Event(message)
+    }
+
+    private fun uploadImage(uri: Uri, onSuccess: (Uri) -> Unit) {
+        inProgress.value = true
+
+        val storageRef = storage.reference
+        val uuid = UUID.randomUUID()
+        val imageRef = storageRef.child("images/$uuid")
+        val uploadTask = imageRef.putFile(uri)
+
+        uploadTask
+            .addOnSuccessListener {
+                val result = it.metadata?.reference?.downloadUrl
+                result?.addOnSuccessListener(onSuccess)
+            }
+            .addOnFailureListener { exc ->
+                handleException(exc)
+                inProgress.value = false
+            }
+    }
+    fun uploadProfileImage(uri: Uri) {
+        uploadImage(uri) {
+            createOrUpdateProfile(imageUrl = it.toString())
+            updateServiceImageData(it.toString())
+        }
+    }
+    private fun updateServiceImageData(toString: String) {
+        //get current user data from firestore
+        //use the .whereEqualto method to get the userId
+        //post service image to firestore
     }
 }

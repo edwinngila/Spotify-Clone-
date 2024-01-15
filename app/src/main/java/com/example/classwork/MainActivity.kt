@@ -33,7 +33,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ClassWorkTheme {
-                OnDemandRoutes()
+                Surface (
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ){
+                    OnDemandRoutes()
+                }
             }
         }
     }
