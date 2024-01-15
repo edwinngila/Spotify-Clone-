@@ -25,6 +25,6 @@ fun OnDemandRoutes() {
         composable(Routes.SignUp.route){ SignUpForms(navController,vm) }
         composable(Routes.Login.route){ LoginForm(navController,vm) }
         composable(Routes.Home.route){ HomeScreen(navController)}
-        composable(Routes.Profile.route){ UserProfile() }
+        composable(Routes.Profile.route){ UserProfile(vm) }
     }
 }

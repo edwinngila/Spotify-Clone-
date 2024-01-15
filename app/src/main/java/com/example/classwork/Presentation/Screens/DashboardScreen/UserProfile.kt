@@ -1,9 +1,11 @@
 package com.example.classwork.Presentation.Screens.DashboardScreen
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -13,28 +15,46 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.classwork.Controlers.AuthViewModel
+import com.example.classwork.Presentation.Components.ProgressSpinner
+import com.example.classwork.R
 
 @Preview
 @Composable
-fun UserProfile() {
-    Column (
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Bottom,
-        modifier = Modifier.fillMaxSize()
-            .background(Color(0x12, 0x12, 0x12))
-    ){
-        UserCardComponent()
+fun UserProfile(viewModel: AuthViewModel) {
+    val isloading = viewModel.inProgress.value
+    if(isloading){
+        ProgressSpinner()
     }
+    else{
+        Column (
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Bottom,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0x12, 0x12, 0x12))
+        ){
+            val userData = viewModel.userData.value
+            var name by remember { mutableStateOf(userData?.name ?: "") }
+            var username by remember { mutableStateOf(userData?.username ?: "") }
+            var bio by remember { mutableStateOf(userData?.bio ?: "you have no bio") }
+            UserCardComponent(name=name,username=username,bio=bio)
+        }
+    }
+
 }
 
 @Composable
-fun UserCardComponent() {
+fun UserCardComponent(name:String,username:String,bio:String) {
     OutlinedCard(
         shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp, bottomEnd = 0.dp, bottomStart = 0.dp),
         colors = CardDefaults.cardColors(
@@ -45,6 +65,22 @@ fun UserCardComponent() {
             .size(width = 600.dp, height = 500.dp)
             .padding(start = 10.dp, end = 10.dp)
     ) {
+        Row(
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Image(painter = painterResource(id = R.drawable.userprofile), contentDescription ="user profile" )
+        }
+        Row {
+            Text(
+                text="Name $name"
+            )
+            Text(
+                text="User Name $username"
+            )
+            Text(
+                text="User Name $bio"
+            )
+        }
         Text(
             text = "Outlined",
             modifier = Modifier

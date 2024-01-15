@@ -15,14 +15,13 @@ import androidx.compose.ui.unit.dp
 
 @Preview
 @Composable
-fun ProgressSpinner(ShowSpinner:Boolean) {
+fun ProgressSpinner() {
     Row (
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxSize()
             .background(Color.LightGray)
-    ){
-        if (ShowSpinner) return
+    ) {
         CircularProgressIndicator(
             modifier = Modifier.width(120.dp),
             color = Color(0x1F, 0xDF, 0x64)
