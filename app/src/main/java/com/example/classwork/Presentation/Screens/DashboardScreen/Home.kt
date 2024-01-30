@@ -32,17 +32,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.classwork.Controlers.AuthViewModel
+import com.example.classwork.Controlers.GetUserMusicViewModel
 import com.example.classwork.Presentation.Components.BottomNavigationItem
 import com.example.classwork.Presentation.Components.BottomNavigationMenu
 import com.example.classwork.Presentation.Components.HomeComponents
 import com.example.classwork.R
+import com.example.classwork.data.MusicItems
 import java.time.LocalTime
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController,viewModel: AuthViewModel) {
+fun HomeScreen(navController: NavController,viewModel: AuthViewModel,getUserMusicvm: GetUserMusicViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -103,7 +105,7 @@ fun HomeScreen(navController: NavController,viewModel: AuthViewModel) {
                 .background(Color(0x12, 0x12, 0x12)),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            HomeComponents(navController)
+            HomeComponents(navController,getUserMusicvm)
         }
     }
 }

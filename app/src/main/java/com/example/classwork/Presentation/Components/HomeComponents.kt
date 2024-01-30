@@ -1,5 +1,6 @@
 package com.example.classwork.Presentation.Components
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +18,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,11 +31,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import com.example.classwork.Controlers.GetUserMusicViewModel
 import com.example.classwork.R
+import com.example.classwork.data.MusicItems
 
 
 @Composable
-fun HomeComponents(navController: NavController) {
+fun HomeComponents(navController: NavController,viewModel: GetUserMusicViewModel) {
+    val MusicViewModel = viewModel.musicFeed.value
+    Log.d("TAG","name:${MusicViewModel}")
+    val inprogress = viewModel.inProgress.value
+    if(inprogress){
+        ProgressSpinner()
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -91,11 +104,7 @@ fun HomeComponents(navController: NavController) {
                 .horizontalScroll(rememberScrollState())
                 .background(Color(0x12, 0x12, 0x12)),
         ){
-            MusicCards(navController)
-            MusicCards(navController)
-            MusicCards(navController)
-            MusicCards(navController)
-            MusicCards(navController)
+                MusicCards(navController)
         }
 
 
@@ -117,10 +126,6 @@ fun HomeComponents(navController: NavController) {
                 .horizontalScroll(rememberScrollState()),
         ){
             MusicCards(navController)
-            MusicCards(navController)
-            MusicCards(navController)
-            MusicCards(navController)
-            MusicCards(navController)
         }
 
 
@@ -141,11 +146,7 @@ fun HomeComponents(navController: NavController) {
             modifier= Modifier
                 .horizontalScroll(rememberScrollState()),
         ){
-            MusicCards(navController)
-            MusicCards(navController)
-            MusicCards(navController)
-            MusicCards(navController)
-            MusicCards(navController)
+
         }
     }
 }
@@ -185,6 +186,7 @@ fun MusicCards(navController: NavController) {
                 navController.navigate("MusicPlayer")
             }
     ) {
+//        val painter = rememberAsyncImagePainter(model = musicImg)
             Image(
                 painter = painterResource(id = R.drawable.ic_launcher_background),
                 contentDescription = "Album",

@@ -21,6 +21,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -28,6 +31,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,17 +40,33 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.classwork.Controlers.UploadMusicViewModel
 import com.example.classwork.Presentation.Components.BottomNavigationItem
 import com.example.classwork.Presentation.Components.BottomNavigationMenu
 import com.example.classwork.Presentation.Components.FormInput
+import com.example.classwork.Presentation.Components.ProgressSpinner
 import com.example.classwork.R
+import com.example.classwork.data.Event
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UploadMusic(navController: NavController) {
-    var MusicName = remember { mutableStateOf("") }
+fun UploadMusic(navController: NavController, viewModel: UploadMusicViewModel) {
+    val MusicName = remember { mutableStateOf("") }
     val Discription = remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     Scaffold (
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState){
+                Snackbar(
+                    snackbarData = it,
+                    containerColor = Color(0xFF626B74),
+                    contentColor = Color.White,
+                    actionColor = Color(0x1F, 0xDF, 0x64)
+                )
+            }
+        },
         bottomBar = {
             BottomNavigationMenu(
                 selectedItem = BottomNavigationItem.LYBRARY ,
@@ -56,6 +76,7 @@ fun UploadMusic(navController: NavController) {
     ){innerPadding ->
         Column(
             modifier = Modifier
+                .padding(innerPadding)
                 .fillMaxSize()
                 .background(Color(0x12, 0x12, 0x12))
         ) {
@@ -95,7 +116,7 @@ fun UploadMusic(navController: NavController) {
                     },
                     label = {
                         Text(
-                            text = "Discription"
+                            text = "Description"
                         )
                     },
                     modifier = Modifier
@@ -111,7 +132,27 @@ fun UploadMusic(navController: NavController) {
                    val launcher = rememberLauncherForActivityResult(
                        contract = ActivityResultContracts.GetContent()
                    ) {uri: Uri? ->
-                       uri?.let {  }
+                       uri?.let {
+                           if (uri !=null){
+                               viewModel.saveAudioFiles(
+                                   uri=uri,
+                               )
+                               scope.launch {
+                                   snackbarHostState.showSnackbar(
+                                       message = "File has been uploaded",
+                                       actionLabel = "Ok",
+                                   )
+                               }
+                           }
+                           else{
+                               scope.launch {
+                                   snackbarHostState.showSnackbar(
+                                       message = "Please select a file",
+                                       actionLabel = "Ok"
+                                   )
+                               }
+                           }
+                       }
                    }
                    Button(
                        onClick = {launcher.launch("audio/*")},
@@ -141,13 +182,40 @@ fun UploadMusic(navController: NavController) {
                }
 
                 Row (
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .padding(10.dp),
                     horizontalArrangement = Arrangement.Center
                 ){
+                    val launcher = rememberLauncherForActivityResult(
+                        contract = ActivityResultContracts.GetContent()
+                    ) {uri: Uri? ->
+                        uri?.let {
+                            if (uri !=null){
+                                viewModel.saveAudioImg(
+                                    uri=uri,
+                                )
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = "File has been uploaded",
+                                        actionLabel = "Ok"
+                                    )
+                                }
+                            }
+                            else{
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = "Please select a file",
+                                        actionLabel = "Ok",
+                                    )
+                                }
+                            }
+                        }
+                    }
                     Button(
-                        onClick = { /*TODO*/ },
-                        modifier = Modifier.fillMaxWidth()
+                        onClick = {launcher.launch("image/*")},
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .background(Color(0x1F, 0xDF, 0x64)),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0x1F, 0xDF, 0x64),
@@ -173,13 +241,21 @@ fun UploadMusic(navController: NavController) {
                 }
 
                 Row (
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .padding(10.dp),
                     horizontalArrangement = Arrangement.Center
                 ){
                     Button(
-                        onClick = { /*TODO*/ },
-                        modifier = Modifier.fillMaxWidth()
+                        onClick = {
+                            viewModel.saveAudioInfo(
+                                    MusicName = MusicName.value,
+                                    Description = Discription.value,
+                            )
+                            navController.navigate("Home")
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .background(Color(0x1F, 0xDF, 0x64)),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0x1F, 0xDF, 0x64),
@@ -192,5 +268,9 @@ fun UploadMusic(navController: NavController) {
                 }
             }
         }
+    }
+    var inprogress = viewModel.inProgress.value
+    if (inprogress){
+        ProgressSpinner()
     }
 }
