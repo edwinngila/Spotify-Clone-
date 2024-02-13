@@ -1,5 +1,6 @@
 package com.example.classwork.Routes
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -40,6 +41,10 @@ fun OnDemandRoutes() {
         composable(Routes.Search.route){ SearchScreen(navController,vm)}
         composable(Routes.EditUserProfile.route){ EditUserProfile(navController,vm)}
         composable(Routes.UploadMusic.route){ UploadMusic(navController,vm2)}
-        composable(Routes.MusicPlayer.route){ MusicPayer(navController)}
+        composable(Routes.MusicPlayer.route){backStackEntry->
+            val albumName = backStackEntry.arguments?: "Unknown"
+            Log.d("TAG", "albumName: ${albumName}")
+            MusicPayer(navController, albumName)
+        }
     }
 }

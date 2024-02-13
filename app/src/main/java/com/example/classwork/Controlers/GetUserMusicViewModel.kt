@@ -2,7 +2,10 @@ package com.example.classwork.Controlers
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.classwork.CommonTB.USERMUSIC
 import com.example.classwork.data.Event
 import com.example.classwork.data.MusicItems
@@ -10,9 +13,13 @@ import com.example.classwork.data.UserMusic
 import com.google.android.gms.common.internal.safeparcel.SafeParcelable.Constructor
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.firebase.firestore.toObject
 import com.google.firebase.firestore.toObjects
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import kotlin.math.exp
 
@@ -22,28 +29,27 @@ class GetUserMusicViewModel @Inject constructor(
     val db: FirebaseFirestore,
     val storage: FirebaseStorage
 ) : ViewModel() {
-        val musicFeed = mutableStateOf<List<UserMusic>>(listOf())
+        val state = mutableStateOf<List<UserMusic>>(emptyList())
         val inProgress = mutableStateOf(false)
-        val popupNotification = mutableStateOf<Event<String>?>(null)
-
-    fun getUserMusic() {
-        inProgress.value = true
-        db.collection(USERMUSIC).get().addOnSuccessListener {
-            val music = it.toObjects<UserMusic>()
-            musicFeed.value = music
-            inProgress.value = false
-
-            Log.d("TAG","music:$musicFeed")
-        }.addOnFailureListener { exception ->
-            handleException(exception, "Cannot get user music")
-            inProgress.value = false
+    init{
+        getData()
+    }
+    private fun getData(){
+        viewModelScope.launch {
+            state.value= getDataFromFireStore()
         }
     }
-
-    fun handleException(exception: Exception? = null, customMessage: String = "") {
-        exception?.printStackTrace()
-        val errorMsg = exception?.localizedMessage ?: ""
-        val message = if (customMessage.isEmpty()) errorMsg else "$customMessage: $errorMsg"
-        popupNotification.value = Event(message)
+    suspend fun getDataFromFireStore(): List<UserMusic> {
+        val userMusicList = mutableListOf<UserMusic>()
+        try {
+            val querySnapshot = db.collection("userMusic").get().await()
+            for (document in querySnapshot) {
+                val result = document.toObject(UserMusic::class.java)
+                userMusicList.add(result)
+            }
+        } catch (e: FirebaseFirestoreException) {
+            Log.d("error", "getDataFromFireStore: $e")
+        }
+        return userMusicList
     }
 }
