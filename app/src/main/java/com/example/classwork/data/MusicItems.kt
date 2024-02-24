@@ -1,9 +1,13 @@
 package com.example.classwork.data
 
 data class MusicItems(
-    val description: String,
-    val musicImg: String,
-    val musicUrl:String,
-    val name:String,
-    val userId:String
-)
+    var musicImg: String?= null,
+    var musicUrl:String? = null,
+    var name:String? = null,
+){
+    fun toMap()= mapOf(
+        "musicImg" to musicImg,
+        "musicUrl" to musicUrl,
+        "name" to name,
+    )
+}

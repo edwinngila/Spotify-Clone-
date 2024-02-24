@@ -44,7 +44,12 @@ import java.time.LocalTime
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController,viewModel: AuthViewModel,getUserMusicvm: GetUserMusicViewModel) {
+fun HomeScreen(
+    navController: NavController,
+    viewModel: AuthViewModel,
+    getUserMusicvm: GetUserMusicViewModel,
+    onNavigateToScreen2:(String)->Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -105,7 +110,7 @@ fun HomeScreen(navController: NavController,viewModel: AuthViewModel,getUserMusi
                 .background(Color(0x12, 0x12, 0x12)),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            HomeComponents(navController,getUserMusicvm)
+            HomeComponents(navController,getUserMusicvm,onNavigateToScreen2)
         }
     }
 }

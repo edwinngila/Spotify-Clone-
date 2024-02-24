@@ -45,6 +45,7 @@ class GetUserMusicViewModel @Inject constructor(
             val querySnapshot = db.collection("userMusic").get().await()
             for (document in querySnapshot) {
                 val result = document.toObject(UserMusic::class.java)
+                result.id=document.id
                 userMusicList.add(result)
             }
         } catch (e: FirebaseFirestoreException) {

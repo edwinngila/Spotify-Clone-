@@ -47,10 +47,14 @@ import androidx.compose.foundation.layout.Column as Column
 
 
 @Composable
-fun HomeComponents(navController: NavController,viewModel: GetUserMusicViewModel) {
+fun HomeComponents(
+    navController: NavController,
+    viewModel: GetUserMusicViewModel,
+    onNavigateToScreen2: (String)->Unit
+) {
     val inprogress = viewModel.inProgress.value
     val getData = viewModel.state.value
-    Log.d("TAG", "HomeComponents: ${getData.size}")
+    Log.d("TAG", "HomeComponents: ${getData}")
     if(inprogress){
         ProgressSpinner()
     }
@@ -116,7 +120,7 @@ fun HomeComponents(navController: NavController,viewModel: GetUserMusicViewModel
                     .background(Color(0x12, 0x12, 0x12)),
             ){
                 getData.forEach { album ->
-                    MusicCards(navController, album)
+                    MusicCards(navController, album,onNavigateToScreen2)
                 }
             }
 
@@ -139,7 +143,7 @@ fun HomeComponents(navController: NavController,viewModel: GetUserMusicViewModel
                     .background(Color(0x12, 0x12, 0x12)),
             ){
                 getData.forEach { album ->
-                    MusicCards(navController, album)
+                    MusicCards(navController, album,onNavigateToScreen2)
                 }
             }
 
@@ -191,13 +195,14 @@ fun AlbumCard() {
     }
 }
 @Composable
-fun MusicCards(navController: NavController, album: UserMusic) {
+fun MusicCards(navController: NavController, album: UserMusic, onNavigateToScreen2: (String)->Unit) {
+    val documentId = album.id
     Card(
         modifier = Modifier
             .size(width = 150.dp, height = 200.dp)
             .padding(5.dp)
             .clickable {
-                navController.navigate("MusicPlayer/$album")
+                onNavigateToScreen2("$documentId")
             }
     ) {
         Box(
